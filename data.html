@@ -204,6 +204,55 @@
         }
         arrangeArrows(window.Assignment1b_data.arrows, window.Assignment1b_data.charges);
     }
+
+    var PositiveCharge = () => {
+        if (window.question == 2) return;
+        window.question = 2;
+        clearSencs();
+        camera.position.z = 10;
+        cubeDim = 3
+        if (window.PositiveCharge_data === undefined) {
+            window.PositiveCharge_data = {
+                charges: [
+                    setCharge1b(1, 0),
+                ]
+            }
+        }
+        scene.add(window.PositiveCharge_data.charges[0])
+    }
+    var PositiveChargeWithField = () => {
+        PositiveCharge()
+        if (window.PositiveCharge_data['arrows'] === undefined)
+            window.PositiveCharge_data['arrows'] = generateElectricFieldArea(cubeDim)
+        window.PositiveCharge_data['arrows'].forEach((datalv2) => {
+            scene.add(datalv2)
+        })
+        arrangeArrows(window.PositiveCharge_data.arrows, window.PositiveCharge_data.charges);
+    }
+    var NegativeCharge = () => {
+        if (window.question == 2) return;
+        window.question = 2;
+        clearSencs();
+        camera.position.z = 8;
+        cubeDim = 3
+        if (window.NegativeCharge_data === undefined) {
+            window.NegativeCharge_data = {
+                charges: [
+                    setCharge1b(-1, 0),
+                ]
+            }
+        }
+        scene.add(window.NegativeCharge_data.charges[0])
+    }
+    var NegativeChargeWithField = () => {
+        NegativeCharge()
+        if (window.NegativeCharge_data['arrows'] === undefined)
+            window.NegativeCharge_data['arrows'] = generateElectricFieldArea(cubeDim)
+        window.NegativeCharge_data['arrows'].forEach((datalv2) => {
+            scene.add(datalv2)
+        })
+        arrangeArrows(window.NegativeCharge_data.arrows, window.NegativeCharge_data.charges);
+    }
     render();
     var str = window.location.hash
     str = str.substr(1, str.length)
