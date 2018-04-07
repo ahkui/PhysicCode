@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>物理作業</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./js/three.min.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <!-- <script src="https://threejs.org/examples/js/utils/GeometryUtils.js"></script> -->
+    <style>
+    body, html {
+      margin: 0;
+
+      width: 100%;
+      height: 100%;
+      overflow: hidden
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .fix-top-left {
+      position: fixed;
+      left: 1rem;
+      top: 1rem;
+    }
+
+    .text-white {
+      color: white;
+    }
+
+    </style>
+</head>
+
+<body id="target">
+    <div class="fix-top-left text-white">
+        藍色正電荷 紅色負電荷
+        <br/>
+        <a href="#" title="Assignment1a" onclick="javascript:Assignment1a();">Assignment 1 a</a>
+        <a href="#" title="Assignment1b" onclick="javascript:Assignment1b();">Assignment 1 b</a>
+        <a href="#" title="Assignment1b" onclick="javascript:toggle_rotate();">toggle rotate</a>
+    </div>
+    <script>
+    var target = document.querySelector('#target');
+    var rotate = true;
+    var question;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, target.clientWidth / target.clientHeight, 1, 1000);
+    camera.position.z = 20;
+    var renderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
+    renderer.setSize(target.clientWidth, target.clientHeight);
+    target.appendChild(renderer.domElement);
+    window.addEventListener('resize', onWindowResize, false);
+    var toggle_rotate = () => {
+        rotate = !rotate;
+    }
+
+    function onWindowResize() {
+        camera.aspect = target.clientWidth / target.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(target.clientWidth, target.clientHeight);
+    }
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    var cubeDim = -1;
+    var clock = new THREE.Clock();
+    var render = () => {
+        requestAnimationFrame(render);
+        if (rotate) {
+            var value = clock.getDelta() * 0.15
+            scene.rotation.y += value;
+            scene.rotation.x += value;
+            scene.rotation.z -= value;
+        }
+        renderer.render(scene, camera);
+    }
+
+    var clearSencs = () => {
+        arrows = [];
+        charges = [];
+        while (scene.children.length > 0) {
+            scene.remove(scene.children[0]);
+        }
+    }
+
+
+    var arrangeArrows = (arrows_data = arrows, charges_data = charges) => {
+        var normal = new THREE.Vector3();
+        var result = new THREE.Vector3();
+        var direction = new THREE.Vector3();
+        var forceVector = new THREE.Vector3();
+        var directions = [];
+        arrows_data.forEach((arrow) => {
+            directions = [];
+            charges_data.forEach((charge, index) => {
+                direction.subVectors(arrow.position, charge.position)
+                normal.copy(direction).normalize();
+                directions.push({
+                    dir: (charge.userData.charge == -1 ? normal.negate() : normal).clone(),
+                    force: 10 / Math.pow(forceVector.subVectors(arrow.position, charge.position).length(), 2)
+                });
+            });
+            result.set(0, 0, 0);
+            directions.forEach((dir) => {
+                result.addScaledVector(dir.dir, dir.force);
+            })
+            arrow.setDirection(result.normalize());
+        });
+    };
+
+
+    var generateElectricFieldArea = (size = cubeDim) => {
+        var arrows = [];
+        for (let x = 0; x < size + 1; x++) {
+            for (let y = 0; y < size + 1; y++) {
+                for (let z = 0; z < size + 1; z++) {
+                    var dir = new THREE.Vector3(0, 0, 0).normalize();
+                    var origin = new THREE.Vector3(x - cubeDim / 2, y - cubeDim / 2, z - cubeDim / 2);
+                    var arrow = new THREE.ArrowHelper(dir, origin, 0.5, 0x99ff99, 0.20);
+                    arrows.push(arrow);
+                }
+            }
+        }
+        return arrows;
+    }
+
+    function setCharge1a(val, position = cubeDim) {
+        var arrows = [];
+        var charges = [];
+        for (let x = 0; x < cubeDim + 1; x++) {
+            for (let y = 0; y < cubeDim + 1; y++) {
+                for (let z = 0; z < cubeDim + 1; z++) {
+                    var dir = new THREE.Vector3(0, 0, 0).normalize();
+                    var origin = new THREE.Vector3(val * x + (position / 2), val * y + (position / 2), val * z + (position / 2));
+                    var arrow = new THREE.ArrowHelper(dir, origin, 0.5, 0x99ff99, 0.20);
+                    arrows.push(arrow);
+                }
+            }
+        }
+        var chargeGeom = new THREE.SphereGeometry(1, 16, 12);
+        var chargeMat = new THREE.MeshBasicMaterial({
+            color: val == 1 ? 0xff0000 : 0x0000ff
+        });
+        var charge = new THREE.Mesh(chargeGeom, chargeMat);
+        charge.position.set(position, position, position);
+        charge.userData.charge = val;
+        charges.push(charge);
+        return { arrows, charges };
+    }
+
+    var setCharge1b = (val, position = cubeDim) => {
+        var chargeGeom = new THREE.SphereGeometry(0.25, 16, 12);
+        var chargeMat = new THREE.MeshBasicMaterial({
+            color: val == 1 ? 0xff0000 : 0x0000ff
+        });
+        var charge = new THREE.Mesh(chargeGeom, chargeMat);
+        charge.position.set(position / 2 * 3, position / 2 * 3, position / 2 * 3);
+        charge.userData.charge = val;
+        return charge;
+    }
+    var Assignment1a = () => {
+        if (window.question == 1) return;
+        window.question = 1;
+        clearSencs();
+        cubeDim = 3;
+        if (window.Assignment1a_data === undefined)
+            window.Assignment1a_data = [
+                setCharge1a(1, cubeDim),
+                setCharge1a(-1, -cubeDim)
+            ]
+        window.Assignment1a_data.forEach((datalv1) => {
+            for (var datalv2 in datalv1) {
+                datalv1[datalv2].forEach((datalv3) => {
+                    scene.add(datalv3)
+                })
+            }
+            arrangeArrows(datalv1.arrows, datalv1.charges);
+        })
+    }
+
+    var Assignment1b = () => {
+        if (window.question == 2) return;
+        window.question = 2;
+        clearSencs();
+        cubeDim = 9
+        if (window.Assignment1b_data === undefined) {
+            window.Assignment1b_data = {
+                charges: [
+                    setCharge1b(1, cubeDim / 4),
+                    setCharge1b(-1, -cubeDim / 4)
+                ],
+                arrows: generateElectricFieldArea(cubeDim)
+            }
+        }
+        for (var datalv1 in window.Assignment1b_data) {
+            window.Assignment1b_data[datalv1].forEach((datalv2) => {
+                scene.add(datalv2)
+            })
+        }
+        arrangeArrows(window.Assignment1b_data.arrows, window.Assignment1b_data.charges);
+    }
+    render();
+    var str = window.location.hash
+    str = str.substr(1, str.length)
+    if (str.length > 0 && window[str] !== undefined)
+        window[str]()
+    </script>
+</body>
+
+</html>
