@@ -4,11 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>物理作業</title>
+    <title>物理</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./js/three.min.js"></script>
     <script src="./js/OrbitControls.js"></script>
-    <!-- <script src="https://threejs.org/examples/js/utils/GeometryUtils.js"></script> -->
     <style>
     body, html {
       margin: 0;
@@ -18,32 +17,10 @@
       overflow: hidden
     }
 
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    .fix-top-left {
-      position: fixed;
-      left: 1rem;
-      top: 1rem;
-    }
-
-    .text-white {
-      color: white;
-    }
-
     </style>
 </head>
 
 <body id="target">
-    <div class="fix-top-left text-white">
-        藍色正電荷 紅色負電荷
-        <br/>
-        <a href="#" title="Assignment1a" onclick="javascript:Assignment1a();">Assignment 1 a</a>
-        <a href="#" title="Assignment1b" onclick="javascript:Assignment1b();">Assignment 1 b</a>
-        <a href="#" title="Assignment1b" onclick="javascript:toggle_rotate();">toggle rotate</a>
-    </div>
     <script>
     var target = document.querySelector('#target');
     var rotate = true;
